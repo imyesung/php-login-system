@@ -1,0 +1,29 @@
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Node modules (if using Node.js)
+node_modules/
+
+# PHP Composer dependencies
+/vendor/
+
+# Environment variables
+.env
+
+# Log files
+*.log
+
+# IDE specific files
+.idea/
+.vscode/
+
+# Apache server logs
+*.log
+*.out
+*.pid
+*.lock
+
+# Cache, session files, and temp files
+cache/
+tmp/
