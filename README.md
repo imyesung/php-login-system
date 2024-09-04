@@ -45,6 +45,7 @@
  
 ### Block1: 데이터베이스 설정 및 연결
 - **목표**: MySQL 데이터베이스를 설정 및 PHP 연결
+- Apache, PHP, MySQL
 - **내용**:
   - MySQL 설치 및 데이터베이스 생성 (`php_login`)
   - `users` 테이블 생성 (필드: `id`, `username`, `email`, `password`, `created_at`)
