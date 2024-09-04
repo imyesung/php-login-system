@@ -20,12 +20,7 @@ This is a simple PHP login system built using XAMPP.
 - Navigate to the registration page to create a new user.
 - Log in with your credentials to access the dashboard.
 
-
-# PHP 로그인 시스템
-
-## 프로젝트 개요
-
-### 프로젝트 이름: `php-login-system`
+--- 
 
 ### 프로젝트 목표:  
 PHP로 안전한 로그인 시스템을 구축하여, 사용자의 인증과 세션 관리를 학습하고 구현합니다. 이 과정에서 보안적 측면을 고려한 코드 작성과 테스트를 병행합니다.
@@ -101,6 +96,7 @@ PHP로 안전한 로그인 시스템을 구축하여, 사용자의 인증과 세
 - **완료 조건**: 추가 기능이 성공적으로 구현되고 테스트됨.
 
 ## GitHub 리포지토리 구조
+```
 php-login-system/
 │
 ├── README.md           # 프로젝트 개요 및 설명
@@ -112,12 +108,14 @@ php-login-system/
 ├── logout.php          # 로그아웃 처리 페이지
 ├── session.php         # 세션 관리 파일
 └── assets/             # CSS, JS 등 프론트엔드 파일
+```
+## Git Workflow
 
-Git Workflow
-
-• Main Branch: main (모든 기능이 병합되는 최종 브랜치)
-• Feature Branches: 각 블럭에 대한 작업은 별도의 기능 브랜치에서 진행 (feature/block-name)
-• Pull Requests (PR): 기능 구현 후 main 브랜치로 병합할 때 PR을 통해 코드 리뷰 진행. PR은 코드 변경 내역을 문서화하고, 협업자들이 리뷰할 수 있도록 합니다.
-• Commit Messages: 모든 커밋 메시지는 명확하고 간결하게 작성 예를 들어, “Implement user registration functionality” 또는 “Fix typo in README.md”.
-• Merging: PR 리뷰 및 승인된 후, main 브랜치에 병합. 병합 시 squash and merge 이를 통해 하나의 커밋으로 기록을 정리할 수 있다.
+- Main Branch: main (모든 기능이 병합되는 최종 브랜치)
+- Feature Branches: 각 블럭에 대한 작업은 별도의 기능 브랜치에서 진행 (feature/block-name)
+- Pull Requests (PR): 기능 구현 후 main 브랜치로 병합할 때 PR을 통해 코드 리뷰 진행. PR은 코드 변경 내역을 문서화하고, 협업자들이 리뷰.
+- Commit Messages: 모든 커밋 메시지는 명확하고 간결하게 작성
+  - eg. Implement user registration functionality
+  - Fix typo in README.md
+- Merging: PR 리뷰 및 승인 후, main 브랜치에 병합. 병합 시 squash and merge 이를 통해 하나의 커밋으로 기록 정리
 
