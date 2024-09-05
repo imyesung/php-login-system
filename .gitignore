@@ -7,9 +7,9 @@ node_modules/
 
 # PHP Composer dependencies
 /vendor/
-
+/config.php
 # Environment variables
-.env
+/.env
 
 # Log files
 *.log
