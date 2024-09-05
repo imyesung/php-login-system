@@ -1,27 +1,37 @@
 <?php
-require 'config.php';  // 데이터베이스 연결 설정
 session_start();
+require 'config.php';  // 데이터베이스 연결 설정
 
+// 세션에서 실패 횟수 추적
+if (!isset($_SESSION['login_attempts'])) {
+    $_SESSION['login_attempts'] = 0;
+}
+
+// 폼 제출 시 처리
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // 사용자 정보 조회
+    // 사용자 조회
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    // 사용자가 존재하고 비밀번호가 일치하는지 확인
+    // 사용자 존재 여부 및 비밀번호 검증
     if ($user && password_verify($password, $user['password'])) {
-        // 로그인 성공 시 세션 설정
-        $_SESSION['username'] = $user['username'];  // 닉네임 저장
-        $_SESSION['email'] = $user['email'];        // 이메일 저장
-
-        // 대시보드로 리다이렉트
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['login_attempts'] = 0;  // 로그인 성공 시 실패 횟수 초기화
         header("Location: dashboard.php");
         exit();
     } else {
-        echo "잘못된 이메일 또는 비밀번호입니다.";
+        $_SESSION['login_attempts'] += 1;  // 실패 시 횟수 증가
+        $error_message = "잘못된 이메일 또는 비밀번호입니다.";
+
+        // 3회 실패 시 데이터베이스에 기록
+        if ($_SESSION['login_attempts'] >= 3) {
+            $stmt = $pdo->prepare("INSERT INTO login_failures (email, failed_at) VALUES (?, NOW())");
+            $stmt->execute([$email]);
+        }
     }
 }
 ?>
@@ -36,12 +46,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f5f7;
-            margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
         }
 
         .login-container {
@@ -49,25 +58,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 40px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
             width: 100%;
+            max-width: 400px;
         }
 
         h2 {
             text-align: center;
-            color: #0052cc;
+            color: #172b4d;
+            margin-bottom: 24px;
         }
 
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
+            color: #172b4d;
         }
 
         input[type="email"], input[type="password"] {
             width: 100%;
             padding: 10px;
-            border: 1px solid #dfe1e6;
+            border: 1px solid #ccc;
             border-radius: 4px;
             margin-bottom: 16px;
             font-size: 16px;
@@ -76,16 +87,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         input[type="submit"] {
             width: 100%;
             padding: 10px;
-            background-color: #007bff;  /* 파란색 버튼 */
+            background-color: #007bff;
             color: white;
             border: none;
             border-radius: 4px;
-            cursor: pointer;
             font-size: 16px;
         }
 
         input[type="submit"]:hover {
-            background-color: #0056b3;  /* 어두운 파란색 */
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 16px;
         }
     </style>
 </head>
@@ -93,9 +109,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <div class="login-container">
     <h2>Login</h2>
-    
+
+    <?php
+    if (isset($error_message)) {
+        echo "<p class='error'>$error_message</p>";
+    }
+    ?>
+
     <!-- 로그인 폼 -->
-    <form method="POST">
+    <form action="login.php" method="POST">
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required>
 
@@ -104,6 +126,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <input type="submit" value="Login">
     </form>
+
+    <!-- 회원가입 링크 -->
+    <div class="signup-link">
+        <p>Don't have an account? <a href="signup.php">Sign up</a></p>
+    </div>
 </div>
 
 </body>

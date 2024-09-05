@@ -1,4 +1,5 @@
 <?php
+session_start();
 require 'config.php';  // 데이터베이스 연결 설정
 
 // 폼 제출 시 처리
@@ -16,7 +17,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // 사용자 정보 삽입
         $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
         if ($stmt->execute([$username, $email, $password])) {
-            $success_message = "환영합니다! 회원가입이 완료되었습니다.";
+            echo "<script>
+                alert('환영합니다! 회원가입이 완료되었습니다.');
+                window.location.href = 'login.php';
+            </script>";
+            exit();
         } else {
             $error_message = "회원가입 실패. 다시 시도해주세요.";
         }
@@ -75,16 +80,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         input[type="submit"] {
             width: 100%;
             padding: 10px;
-            background-color: #4caf50;
+            background-color: #007bff; /* 파란색 */
             color: white;
             border: none;
             border-radius: 4px;
-            cursor: pointer;
             font-size: 16px;
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #0056b3; /* 더 어두운 파란색 */
         }
 
         .error {
@@ -104,15 +108,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h2>Signup</h2>
 
     <?php
-    // 회원가입 성공 또는 오류 메시지 출력
-    if (isset($success_message)) {
-        echo "<p class='success'>$success_message</p>";
-    } elseif (isset($error_message)) {
+    if (isset($error_message)) {
         echo "<p class='error'>$error_message</p>";
     }
     ?>
 
-    <!-- 회원가입 폼 -->
     <form action="signup.php" method="POST">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
