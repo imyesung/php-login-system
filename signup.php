@@ -1,11 +1,36 @@
+<?php
+require 'config.php';  // 데이터베이스 연결 설정
+
+// 폼 제출 시 처리
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);  // 비밀번호 해시화
+
+    // 이메일 중복 확인
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    if ($stmt->rowCount() > 0) {
+        $error_message = "이미 등록된 이메일입니다.";
+    } else {
+        // 사용자 정보 삽입
+        $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+        if ($stmt->execute([$username, $email, $password])) {
+            $success_message = "환영합니다! 회원가입이 완료되었습니다.";
+        } else {
+            $error_message = "회원가입 실패. 다시 시도해주세요.";
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup</title>
     <style>
-        /* 전체 페이지 레이아웃 설정 */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f5f7;
@@ -16,7 +41,6 @@
             margin: 0;
         }
 
-        /* 카드 형식의 중앙화된 레이아웃 */
         .signup-container {
             background-color: #fff;
             padding: 40px;
@@ -26,14 +50,12 @@
             max-width: 400px;
         }
 
-        /* 제목 스타일 */
         h2 {
             text-align: center;
             color: #172b4d;
             margin-bottom: 24px;
         }
 
-        /* 라벨 스타일 */
         label {
             display: block;
             margin-bottom: 8px;
@@ -41,74 +63,69 @@
             color: #172b4d;
         }
 
-        /* 입력 필드 스타일 */
         input[type="text"], input[type="email"], input[type="password"] {
             width: 100%;
             padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #dfe1e6;
+            border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
+            margin-bottom: 16px;
+            font-size: 16px;
         }
 
-        /* 제출 버튼 스타일 */
         input[type="submit"] {
             width: 100%;
-            padding: 12px;
-            background-color: #0052cc;
+            padding: 10px;
+            background-color: #4caf50;
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 16px;
             cursor: pointer;
+            font-size: 16px;
         }
 
-        /* 버튼 호버 스타일 */
         input[type="submit"]:hover {
-            background-color: #0747a6;
+            background-color: #45a049;
         }
 
-        /* 에러 메시지 스타일 */
         .error {
             color: red;
-            margin-bottom: 20px;
+            text-align: center;
         }
 
-        /* 성공 메시지 스타일 */
         .success {
             color: green;
-            margin-bottom: 20px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="signup-container">
-        <h2>Signup</h2>
+<div class="signup-container">
+    <h2>Signup</h2>
 
-        <?php
-        // 회원가입 성공 또는 오류 메시지 출력
-        if (isset($success_message)) {
-            echo "<p class='success'>$success_message</p>";
-        } elseif (isset($error_message)) {
-            echo "<p class='error'>$error_message</p>";
-        }
-        ?>
+    <?php
+    // 회원가입 성공 또는 오류 메시지 출력
+    if (isset($success_message)) {
+        echo "<p class='success'>$success_message</p>";
+    } elseif (isset($error_message)) {
+        echo "<p class='error'>$error_message</p>";
+    }
+    ?>
 
-        <!-- 회원가입 폼 -->
-        <form action="signup.php" method="POST">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
+    <!-- 회원가입 폼 -->
+    <form action="signup.php" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
 
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
 
-            <input type="submit" value="Signup">
-        </form>
-    </div>
+        <input type="submit" value="Signup">
+    </form>
+</div>
 
 </body>
 </html>
