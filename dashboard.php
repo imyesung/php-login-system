@@ -31,8 +31,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_message'])) {
     $message_id = $_POST['message_id'];
 
     // 글 수정
-    $stmt = $pdo->prepare("UPDATE guestbook SET message = ? WHERE id = ?");
-    $stmt->execute([$message, $message_id]);
+    $stmt = $pdo->prepare("UPDATE guestbook SET message = ? WHERE id = ? AND username = ?");
+    $stmt->execute([$message, $message_id, $_SESSION['username']]);
 
     // 페이지 새로고침
     header("Location: dashboard.php");
@@ -43,9 +43,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_message'])) {
 if (isset($_GET['delete_id'])) {
     $message_id = $_GET['delete_id'];
 
-    // 글 삭제
-    $stmt = $pdo->prepare("DELETE FROM guestbook WHERE id = ?");
-    $stmt->execute([$message_id]);
+    // 글 삭제 (본인의 글만 삭제 가능)
+    $stmt = $pdo->prepare("DELETE FROM guestbook WHERE id = ? AND username = ?");
+    $stmt->execute([$message_id, $_SESSION['username']]);
 
     // 페이지 새로고침
     header("Location: dashboard.php");
@@ -59,7 +59,7 @@ $messages = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -84,6 +84,17 @@ $messages = $stmt->fetchAll();
         h2 {
             text-align: center;
             color: #172b4d;
+        }
+
+        .logout {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .logout a {
+            color: #0052cc;
+            text-decoration: none;
+            font-weight: bold;
         }
 
         form {
@@ -141,12 +152,30 @@ $messages = $stmt->fetchAll();
 
         .edit-form {
             margin-top: 10px;
+            display: none;
         }
     </style>
+    <script>
+        function showEditForm(id) {
+            var editForm = document.getElementById('edit-form-' + id);
+            var deleteLink = document.getElementById('delete-link-' + id);
+            if (editForm.style.display === 'none') {
+                editForm.style.display = 'block';
+                deleteLink.style.display = 'inline';
+            } else {
+                editForm.style.display = 'none';
+                deleteLink.style.display = 'none';
+            }
+        }
+    </script>
 </head>
 <body>
 
     <div class="container">
+        <div class="logout">
+           <a href="logout.php">로그아웃</a> 
+        </div>
+
         <h2>Guestbook</h2>
 
         <!-- 글 작성 폼 -->
@@ -169,15 +198,18 @@ $messages = $stmt->fetchAll();
                     <?php echo htmlspecialchars($message['message']); ?>
                 </div>
 
-                <!-- 수정 및 삭제 버튼 -->
-                <div class="message-actions">
-                    <form action="dashboard.php" method="POST" class="edit-form">
-                        <input type="hidden" name="message_id" value="<?php echo $message['id']; ?>">
-                        <textarea name="message" required><?php echo htmlspecialchars($message['message']); ?></textarea>
-                        <input type="submit" name="edit_message" value="Edit">
-                    </form>
-                    <a href="dashboard.php?delete_id=<?php echo $message['id']; ?>" onclick="return confirm('Are you sure you want to delete this message?')">Delete</a>
-                </div>
+                <!-- 본인 글일 경우만 수정 및 삭제 버튼 표시 -->
+                <?php if ($message['username'] === $_SESSION['username']): ?>
+                    <div class="message-actions">
+                        <button onclick="showEditForm(<?php echo $message['id']; ?>)">Edit</button>
+                        <a href="javascript:void(0);" id="delete-link-<?php echo $message['id']; ?>" style="display:none;" onclick="if(confirm('Are you sure you want to delete this message?')) { window.location.href='dashboard.php?delete_id=<?php echo $message['id']; ?>'; }">Delete</a>
+                        <form action="dashboard.php" method="POST" id="edit-form-<?php echo $message['id']; ?>" class="edit-form">
+                            <input type="hidden" name="message_id" value="<?php echo $message['id']; ?>">
+                            <textarea name="message" required><?php echo htmlspecialchars($message['message']); ?></textarea>
+                            <input type="submit" name="edit_message" value="Save">
+                        </form>
+                    </div>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     </div>
