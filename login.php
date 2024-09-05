@@ -75,25 +75,28 @@
             <input type="submit" value="Login">
         </form>
 
-        <?php
-	phpinfo();
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $email = htmlspecialchars($_POST['email']);
-            $password = htmlspecialchars($_POST['password']);
+       <?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    require 'config.php';  // 데이터베이스 연결 설정
 
-            // 간단한 하드코딩된 이메일/비밀번호 검증 (데모용)
-            $valid_email = "user@example.com";
-            $valid_password = "password123";
+    $email = $_POST['email'];
+    $password = $_POST['password'];  // 사용자가 입력한 비밀번호
 
-            if ($email == $valid_email && $password == $valid_password) {
-                echo "<p class='success'>Login successful! Welcome, " . $email . ".</p>";
-                echo "<p>Email: $email</p>";
-                echo "<p>Password: $password</p>";
-            } else {
-                echo "<p class='error'>Invalid email or password. Please try again.</p>";
-            }
-        }
-        ?>
+    // 데이터베이스에서 사용자 정보 가져오기
+    $sql = "SELECT * FROM users WHERE email = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+
+    if ($user && password_verify($password, $user['password'])) {
+        // 로그인 성공
+        echo "Login successful! Welcome, " . $user['username'];
+    } else {
+        // 로그인 실패
+        echo "Invalid email or password. Please try again.";
+    }
+}
+?> 
     </div>
 </body>
 </html>
